@@ -14,10 +14,6 @@
 
 It is single html/js program ([pp-web-crawler.html](source/pp-web-crawler.html)) about 100 lines, showing in below code-block. 
 
-```
-```
-
-
 ## Modification History
 
 * 2021/06/28, v0.30, first version.
