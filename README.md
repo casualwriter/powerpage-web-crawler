@@ -12,7 +12,7 @@
 
 ## Source Code
 
-It is single html/js program ([pp-web-crawler.html](source/pp-web-crawler.html)) about 100 lines, showing in below code-block. 
+It is single html/js program ([pp-web-crawler.html](source/pp-web-crawler.html)) about 100 lines. 
 
 ## Modification History
 
