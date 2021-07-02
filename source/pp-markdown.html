@@ -44,7 +44,8 @@ function onOpenFile(result, type, url) {
 
 // load file
 function onLoadFile(result, type, url) {
-  simplemde.value( mdText = result )
+  simplemde.value( result )
+  mdText = simplemde.value() 
   if (simplemde.isPreviewActive()) document.getElementsByClassName('fa fa-eye')[0].click()
 }
 
@@ -86,7 +87,6 @@ function onPageClose() {
     pb.file.write( mdFile, '@mdText', 'close' )
     return 'no'
   }
-  //return 'yes'  
 }
 
 // print preview (active preview first)

@@ -20,7 +20,7 @@ pb.router = function ( name, result, type, url ) {
   } else if (name) {
       alert( 'callback function ' + name + '() not found!\n\n type:' + type + '\n cmd: ' + url 
              + '\n function: '+name + '\n result: \n\n' + result )
-  } else if (type=='json'||type=='table'||type=='sql'||type=='file') {
+  } else if (type=='json'||type=='table'||type=='sql'||type=='file'||type=='dir') {
       alert( 'callback (default)\n\n type:' + type + '\n cmd: ' + url 
              + '\n Result: \n\n' + result )
   }  
@@ -60,7 +60,7 @@ pb.callback = function (funcname) { pb.cmd.callback = funcname; return pb }
  
 //=== submit command to Main Program. (support cmd history later)
 pb.submit = function ( cmd, parm, callback ) { 
-   pb.cmd.command = pb.cmd.prepare(callback) + cmd + '/' + encodeURIComponent(parm);
+   pb.cmd.command = pb.cmd.prepare(callback) + cmd + '/' + encodeURIComponent(parm||'');
    window.location = pb.cmd.command
    return pb
 }
@@ -136,6 +136,7 @@ pb.file.append = function (file, text, callback) { pb.submit( 'file/append', fil
 pb.file.delete = function (file, callback) { pb.submit( 'file/delete', file, callback ) }
 pb.file.opendialog = function (ext, callback) { pb.submit( 'file/opendialog', ext, callback ) }
 pb.file.savedialog = function (ext, callback) { pb.submit( 'file/savedialog', ext, callback ) }
+pb.dir = function (action, folder, callback) { pb.submit( 'dir/'+(action||''), folder, callback ) }
 
 //==== pb session. 
 // session(name) -> get value
@@ -159,7 +160,7 @@ pb.print = function ( opt, callback ) { pb.submit( 'print', opt, callback ) }
 pb.pdf = function ( opt, parm, callback ) { 
   var html=''
   if (opt=='host') { 
-     var divs = document.querySelectorAll(parm.replace(/\*/g,'#'))
+     var divs = document.querySelectorAll(parm.replace(/\$/g,'#'))
      for (var i=0; i<divs.length; i++ ) html += divs[i].outerHTML + '\n'
      return html
   }    
@@ -174,7 +175,7 @@ pb.crawl = function ( key ) {
   for (i=0; i<divs.length; i++) { 
     text += divs[i].innerText + '\n'
     html += divs[i].outerHTML + '\n'
-    if (divs[i].nodeName=='A') links.push({ url:divs[i].href, text:divs[i].innerText, id:divs[i].id });     
+    if (divs[i].nodeName=='A') links.push({ url:decodeURI(divs[i].href), text:divs[i].innerText, id:divs[i].id });     
   }
   return JSON.stringify( { text:text, html:html, links:links, head:document.head.outerHTML } )
 }
@@ -183,5 +184,5 @@ pb.crawl = function ( key ) {
 document.addEventListener("contextmenu", function(e){ e.preventDefault();}, false);
 
 // watch: IE mode and userAgent
-document.location='pb://microhelp/Mode=IE'+document.documentMode+', userAgent='+navigator.userAgent
+//document.location='pb://microhelp/Mode=IE'+document.documentMode+', userAgent='+navigator.userAgent
 

@@ -17,7 +17,8 @@
 
 <button onclick="location.href='pp-markdown.html'">Markdown Editor</button> 
 <button onclick="location.href='pp-web-crawler.html'">Web Crawler</button> 
-<button onclick="location.href='dbbrowser.html'" disabled>DB Browser</button> 
+<button onclick="location.href='pp-db-browser.html'" disabled>DB Browser</button> 
+<button onclick="location.href='pp-document.html'" disabled>Documentation</button> 
 <button onclick="pb.run('notepad.exe powerpage.html')" accesskey=e style="float:right"><u>E</u>dit This Page</button> 
 <button onclick="pb.window('w_about')" accesskey=a style="float:right"><u>A</u>bout</button> 
 
@@ -36,6 +37,7 @@
 <hr>
 
 <div id=global>
+<h2>Quick Reference of API (pb-protocol)</h2><hr>
 <h3>Global Features (Callback, Prompt, @JsVar, Secured protocol)</h3> 
 "Callback, Prompt/Confirm, @JsVar, Secured protocol" are supported in all commands.
 
@@ -86,7 +88,7 @@ Run will call Wscript.run() and Shell command will be diverted to shell32.dll ->
      <td class=syntax>[javascript:pb.run('notepad.exe powerpage.html')]()
   </tr>
   <tr>
-     <td class=remark>Run program with directory, and wait
+     <td class=remark>Run program within directory, and wait
      <td class=sample>pb://run/<mark>path=?,cmd=?,style=?</mark>
      <td class=syntax>[pb://run/path=c:\app,cmd=notepad.exe,style=wait]()
      <td class=syntax>[javascript:pb.run('notepad.exe','c:\\app','max+wait')]()
@@ -120,7 +122,7 @@ Run will call Wscript.run() and Shell command will be diverted to shell32.dll ->
 
 <div>
 <h3>File Accessibility</h3>
-calling powerbuilder.filecopy(), filemove(), fileread(), filewrite to provide file support.
+calling powerbuilder file/diretory funcitons to provide file support.
 <table style="margin:10px;border-collapse: collapse;">
   <tr><th>Description<th>Syntax<th>url protocol<th>javascript</tr>
   <tr>
@@ -170,6 +172,36 @@ calling powerbuilder.filecopy(), filemove(), fileread(), filewrite to provide fi
      <td class=sample><mark>pb://file/savedialog</mark>/{desc},{*.ext}
      <td class=syntax>[pb://file/savedialog/HTML (*.html),*.html]() 
      <td class=syntax>[javascript:pb.file.savedialog('HTML (*.html),*.html')]()
+  </tr>
+  <tr>
+     <td class=remark>Current Directory
+     <td class=sample><mark>pb://dir</mark>
+     <td class=syntax>[pb://dir]()
+     <td class=syntax>[javascript:pb.dir()]()
+  </tr>
+  <tr>
+     <td class=remark>Create Directory
+     <td class=sample><mark>pb://dir/create</mark>/directory
+     <td class=syntax>[pb://dir/create/samples]()
+     <td class=syntax>[javascript:pb.dir('create','samples')]()
+  </tr>
+  <tr>
+     <td class=remark>Change Directory
+     <td class=sample><mark>pb://dir/change</mark>/directory
+     <td class=syntax>[pb://dir/change/samples](), [pb://dir/change/$parent](),  
+     <td class=syntax>[javascript:pb.dir('change','samples')](), [javascript:pb.dir('change','$home')]() 
+  </tr>
+  <tr>
+     <td class=remark>Delete Directory
+     <td class=sample><mark>pb://dir/delete</mark>/directory
+     <td class=syntax>[pb://dir/delete/samples]()
+     <td class=syntax>[javascript:pb.dir('delete','samples')]()
+  </tr>
+  <tr>
+     <td class=remark>Open Dialog to select folder 
+     <td class=sample><mark>pb://dir/select</mark>
+     <td class=syntax>[pb://dir/select]()
+     <td class=syntax>[javascript:pb.dir('select')]()
   </tr>
 </table>
 </div>
@@ -303,7 +335,7 @@ Session is important for applicaiton development. After page loaded,
   <tr>
      <td class=remark>Select Elements for PDF Report 
      <td class=sample>pb://pdf/[now|print|div|id]<mark>[/querySelector]</mark>
-     <td class=syntax>[pb://pdf/div/*brief,*global,.sample](), [pb://pdf/open/p,hr,button]()
+     <td class=syntax>[pb://pdf/div/$brief,$global,.sample](), [pb://pdf/open/p,hr,button]()
      <td class=syntax>[javascript:pb.pdf('open','#brief,#global,.sample')](), [javascript:pb.pdf('div','p,hr,button')]()
   </tr>
 </table>
