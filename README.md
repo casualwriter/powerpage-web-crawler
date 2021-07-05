@@ -1,9 +1,10 @@
 # Powerpage Web Crawler
 
-``Powerpage Web Crawler`` is simple web crawler utility using [**Powerpage**](https://github.com/casualwriter/powerpage).
+``Powerpage Web Crawler`` is portable lightweight web crawler using [**Powerpage**](https://github.com/casualwriter/powerpage). 
  
- It is a simple html/js application demonstrating developing application using [Powerpage](https://github.com/casualwriter/powerpage).
+It is a simple html/js application demonstrating developing application using [Powerpage](https://github.com/casualwriter/powerpage). 
 
+![powerpage-web-crawler.jpg]()
 
 ## Installation & Run
 
@@ -18,23 +19,24 @@
 * Click [Crawl Once] to crawl the base page 
 * find out the pattent of index page
 * find out the pattent of content page
-* open chrome of the content page, find out the css selector for crawling content
+* open Chrome and goto content page, find out the css selector for crawling content
 
 ### Start carwling
 
 * click [Crawl Once] to crawl base url once
 * click [Crawl All] to crawl all index pages
 * double-click on the list of content page, will crawl content of this page, and show in right-panel
-* may continue finetune the content definition, then double-click on content page. 
+* may continue finetune the content definition, then double-click to preview. 
 
 ### Sample Sites
 
-* Some samples sites has been pre-defined. Click [Load Sites] to show the list of sites.
+* click [Load Sites] to show the list of sample sites.
 * click on the site to load the definition, double-click to start [Crawl Once]
+* click [Save Site] to save the definition to sample.mdb
 
 ## Source Code
 
-It is single html/js program ([pp-web-crawler.html](source/pp-web-crawler.html)) about 150 lines. 
+It is single html/js program ([pp-web-crawler.html](source/pp-web-crawler.html)) about 200 lines. 
 
 ## Modification History
 

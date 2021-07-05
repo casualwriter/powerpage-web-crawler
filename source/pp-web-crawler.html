@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <title>Powerpage Web Crawler</title>
 <style>
-body, input, button { font-family:calibri, arial }
-#left  { float:left; width:60%; height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px }
-#right { float:right; width:38%; height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px }
+input, button { font-family:calibri, arial }
+#left  { float:left; width:740px; height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px }
+#right { float:right; width:calc(100vw - 790px); height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px }
 li:hover { background:lightgreen; }
 </style>
-<body style="font-family:calibri">
-<div id=header style="padding:8px">
+<body style="font-family:calibri; overflow:hidden">
+<div id=header style="padding:6px">
   <table>
     <tr>
       <td><b>base link</b> 
-      <td><input id=baseurl name=baseurl size=48 value='https://ckhung.wordpress.com/' /> 
+      <td><input id=baseurl name=baseurl size=48 value='https://' /> 
       <td><b>for index like  
-      <td><input id=idxpage name=idxpage size=48 value='/category/' />
+      <td><input id=idxpage name=idxpage size=48 value='' />
       <td><input id=silent name=silent type=checkbox checked>Silent</input> 
       <td><button onclick="crawlStart(1)">Crawl Once</button>
       <td><button onclick="loadSites()">Load Sites</button>
@@ -21,26 +21,32 @@ li:hover { background:lightgreen; }
     </tr>
     <tr>
       <td><b>find page like</b>  
-      <td><input id=pattern name=pattern size=48 value='/20[0-2][0-9]/[01][0-9]/[0-3][0-9]/' />
-      <td><b>select content  
-      <td><input id=capture name=capture size=48 value='.post-header, .post-content > :not(.sharedaddy):not(script)' />
+      <td><input id=pattern name=pattern size=48 value='' />
+      <td><b>for content  
+      <td><input id=capture name=capture size=48 value='' />
       <td><button id=btnStop onclick="maxLevel=0" disabled>Stop</button>
       <td><button id=btnCrawlAll onclick="crawlStart()">Crawl All</button>
-      <td><button onclick="saveToDb()" disabled>Save2DB</button> 
-      <td><button onclick="batchToPdf()">Generate Batch (All2Pdf)</button>  
+      <td><button onclick="saveSite()">Save Site</button> 
+      <td><button onclick="batchToPdf()">Batch to PDF</button>  
     </tr>
   </table>
 </div>  
 <div id=left>
-<p>Recommended input the base url, and click [Crawl Once] to check url pattern</p>
-<p>please use <b>RegExp</b> to filter the proper index link and page link, and input the css select string for "select content"</p>
+<p>Please input the base url, and click [Crawl Once] to check url pattern<br>
+then use <b>RegExp</b> to filter the proper index link and page link, and input <b>css selector</b> to "select content"</p>
+<ul>
+<li>click [Crawl Once] to crawl base url once
+<li>click [Crawl All] to crawl all index pages
+<li>double-click on the list of content page, will crawl content of this page, and show in right-panel
+<li>may continue finetune the content definition, then double-click on content page. 
+</ul>
 </div>
 <div id=right></div>
 </body>
 
 <script>
 var baseUrl, pattern, idxpage, capture, count=0, maxLevel=1
-var listPage, listTodo, result, silent, sites, textbuffer
+var listPage, listTodo, result, silent, sites, folder, textbuffer, sql
 
 // start/stop crawl index
 function crawlStart(level) {
@@ -70,9 +76,8 @@ function crawlNext() {
 
 // process result from crawling index page
 function captureIndex ( result, type, url ) {
-  var i, link, html='', msg=''
-  var rs = JSON.parse( result||'{}' )
-  document.getElementById('right').innerHTML = result
+  var i, link, html=''
+  var rs = JSON.parse( result||'{links:[]}' )
   
   for (i=0; i<rs.links.length; i++) {
     link = rs.links[i].url.split('#')[0]
@@ -81,7 +86,7 @@ function captureIndex ( result, type, url ) {
       if ( listTodo.indexOf(link)<0 ) listTodo.push(link); 
     }
     if (!pattern || link.search(pattern)>=0 ) {
-      if ( listPage.indexOf(link)<0 ) listPage.push(link);
+      if ( listPage.indexOf(link)<0 ) listPage.push(link)
     }  
   }
 
@@ -89,9 +94,8 @@ function captureIndex ( result, type, url ) {
   html += '<hr/><b>Content Pages</b>(double-click to crawl content)<ul>'
   for (i=0; i<listPage.length; i++) html += '\n <li ondblclick="captureContent('+i+')">' + listPage[i]
       
-  document.getElementById('left').innerHTML = html + '</ul>'
-  document.getElementById('right').innerHTML = msg
-
+  document.getElementById('left').innerHTML = html + '</ul> Total ' + listPage.length + ' pages'
+  document.getElementById('right').innerHTML = ''
   setTimeout("crawlNext()", 600 ); 
 }
 
@@ -115,10 +119,12 @@ function loadSites() {
 
 // show sites based on db query result.
 function showSites ( result, type, url ) {
+  //document.getElementById('right').innerHTML = '<xmp>'+result+'</xmp>'; return
   sites = JSON.parse( result||'{}' )
   for (var html='',i=0; i<sites.data.length; i++) {
     html += '<li onclick="loadSiteConfig(' + i + ')" ondblclick="crawlStart(1)">' + sites.data[i][0] 
     html += ' &nbsp;&nbsp;<small style="color:blue">' + sites.data[i][1] + '</small>'
+    html += ' <span style="float:right" onclick="deleteSite(\'' + sites.data[i][1] + '\')">X</span>'
   }  
   document.getElementById('right').innerHTML = '<b>Click to load setting of below sites</b><br><ol>' + html + '</ol>'  
 }
@@ -137,22 +143,65 @@ function batchToPdf() {
     alert('Please click [crawl once] or [crawl all] to find content pages first')
   } else {  
     var i, name, batch
-    var folder = baseUrl.replace(/http[s]:\/\/(.*)/i,'$1').replace(/\//g,'-').replace(/-$/,'')
+    folder = baseUrl.replace(/http[s]*:\/\/(.*)/i,'$1').replace(/[\/|?|&]/g,'-').replace(/-$/,'')
     batch = '@echo off\nmkdir ' + folder
     capture = document.getElementById('capture').value
     silent = ( document.getElementById('silent').checked? ';silent=yes' : '' )
     
     for ( i=0; i<listPage.length; i++ ) {
-      name = listPage[i].replace( baseUrl, '' )
+      name = listPage[i].replace(/http(.+).com\//,'')
       name = name.replace(/\//g,'-').replace(/-$/,'').replace(/\.(.+)$/, '' ) 
-      //pb.callback('saveToPdfDone').popup( 'delim=;mode=pdf' + silent + ';key=' + capture + ';url=' + listPage[i] )
       batch += '\nwkhtmltopdf.exe  "' + listPage[i] + '"  "' + folder + '\\' + name + '.pdf" '
     }
-    textbuffer = batch
-    pb.callback('batchCreated').file.write( folder+'.bat', '@textbuffer' )
-    document.getElementById('right').innerHTML = '<pre>' + batch + '</pre>'
+
+    batch += '</pre><button onclick="batchCreate(\'' + folder + '\')">Save to ' + folder + '.bat</button>'
+    document.getElementById('right').innerHTML = '<pre id=batch>' + batch 
   }  
 }
 
-function batchCreated() { alert('Batch file has been generated and saved!') }
+function batchCreate(name) {
+    textbuffer = document.getElementById('batch').innerText
+    pb.callback('batchMessgae').file.write( name + '.bat', '@textbuffer' )
+}
+    
+function batchMessgae() { 
+  alert('Batch file "' + folder + '.bat" has been generated and saved!') 
+}
+
+// svae site to database
+function saveSite() {
+  baseUrl = document.getElementById('baseurl').value  
+  pb.callback('saveCheck').db.query("select site_name from pp_sites where base_url='" + baseUrl + "'")
+}
+
+function saveCheck(result) {  
+  if (JSON.parse( result||'{}' ).rowCount==1) {
+    sql = "UPDATE pp_sites SET update_date=now(), " 
+    sql += " index_url='" + (document.getElementById('idxpage').value||'').replace(/'/g,"''") + "', " 
+    sql += " page_url='" + (document.getElementById('pattern').value||'').replace(/'/g,"''") + "', " 
+    sql += " content ='" + (document.getElementById('capture').value||'').replace(/'/g,"''") + "' "
+    sql += " WHERE base_url='" + baseUrl + "' "
+    pb.callback('saveExecuted').db.execute(sql)
+  } else {
+    var name = prompt( 'site name', baseUrl )
+    if (name) {
+      sql = "INSERT INTO pp_sites (site_name,base_url,index_url,page_url,content,create_date,update_date) "
+      sql += "VALUES ('" + name + "', '" + baseUrl + "', '"
+      sql += (document.getElementById('idxpage').value||'').replace(/'/g,"''") + "', '" 
+      sql += (document.getElementById('pattern').value||'').replace(/'/g,"''") + "', '"
+      sql += (document.getElementById('capture').value||'').replace(/'/g,"''") + "', now(), now() )"
+      pb.callback('saveExecuted').db.execute(sql)
+    }
+  }
+}
+
+function saveExecuted(result) { alert('Site setting has been saved to database.\n'+result) }
+
+// svae site to database
+function deleteSite(url) {
+   if ( confirm('Delete site ' + url + '?') ) {
+      sql = "DELETE FROM pp_sites WHERE base_url='" + url + "' "
+      pb.callback('loadSites').db.execute(sql)
+   }
+}
 </script>
