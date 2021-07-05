@@ -4,7 +4,7 @@
  
 It is a simple html/js application demonstrating developing application using [Powerpage](https://github.com/casualwriter/powerpage). 
 
-![powerpage-web-crawler.jpg]()
+![](powerpage-web-crawler.jpg)
 
 ## Installation & Run
 
