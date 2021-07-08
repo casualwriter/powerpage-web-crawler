@@ -42,7 +42,7 @@ It is single html/js program ([pp-web-crawler.html](source/pp-web-crawler.html))
 
 * 2021/06/28, v0.30, first version.
 * 2021/07/02, v0.35, add sample sites.
-
+* 2021/07/08, v0.38, crawl all site to local file, and misc enhancement
 
 ## License
 
