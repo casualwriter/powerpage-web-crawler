@@ -179,7 +179,7 @@ pb.crawl = function ( key ) {
     html += divs[i].outerHTML + '\n'
     if (divs[i].nodeName=='A') links.push({ url:decodeURI(divs[i].href), text:divs[i].innerText, id:divs[i].id });     
   }
-  return JSON.stringify( { text:text, html:html, links:links, head:document.head.outerHTML } )
+  return JSON.stringify( { url:location.href, title:document.title, text:text, html:html, links:links } )
 }
 
 //====== grab data for web crawler (mode=spider), key:=name1=select1|name2=select2;
