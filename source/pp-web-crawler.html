@@ -26,7 +26,7 @@ li:hover { background:lightgreen; }
       <td><input id=capture name=capture size=45 value='' />
       <td>Max <input id=maxpage name=maxpage size=3 value=999></input>Pages
       <td><button onclick="loadSite()">Load Sites</button>
-      <td><button onclick="saveSite()">Save Site</button> 
+      <td><button onclick="saveSite()">Save Sites</button> 
       <td><button onclick="saveAllToHtml()">Save All to Html</button>  
     </tr>
   </table>
@@ -35,18 +35,17 @@ li:hover { background:lightgreen; }
 <p>Please input the base url, and click [Crawl Once] to check url pattern<br>
 then use <b>RegExp</b> to filter the proper index link and page link, and input <b>css selector</b> to "select content"</p>
 <ul>
-  <li>Click [Crawl Once] to crawl base url once.
-  <li>Click [Crawl All] to crawl all index pages.
-  <li>Click [Stop] to stop crawling process.
-  <li>Double-click on the list of content page, will crawl content of this page, and show in right-panel.
-  <li>May continue finetune the "content" definition, then double-click to crawl the content page.
-  <li>In right-panel, click on [Save To File] will save crawl page to html file.
-</ul>
-<ul> 
-  <li>Click [Load Sites] to show the list of sample sites from database.
-  <li>Click on a sample site to load the site setting only
-  <li>Doubleclick on sample site to crawled links from database.
-  <li>Click [Save Sites] will save site setting with crawled links to database (sample.mdb)
+<li>Click [Crawl Once] to crawl base url once.
+<li>Click [Crawl All] to crawl all index pages.
+<li>Click [Stop] to stop crawling process.
+<li>Double-click on the list of content page, will crawl content of this page, and show in right-panel.
+<li>May continue finetune the "content" definition, then double-click to crawl the content page.
+<li>In right-panel, click on [Save To File] will save crawl page to html file.
+</ul><ul> 
+<li>Click [Load Sites] to show the list of sample sites from database.
+<li>Click on a sample site to load the site setting only
+<li>Doubleclick on sample site to crawled links from database.
+<li>Click [Save Sites] will save site setting with crawled links to database (sample.mdb)
 </ul>
 <p>If everything is tested fine, may click [Save All to Html] to crawl all pages to local html files.</p>
 </div>
@@ -166,7 +165,8 @@ function showSite ( result, type, url ) {
   sites = JSON.parse( result||'{}' )
   for (var html='',i=0; i<sites.data.length; i++) {
     html += '<li onclick="loadSiteConfig(' + i + ')" ondblclick="loadSitePages(' + i + ')">' + sites.data[i][1] 
-    html += ' &nbsp;&nbsp;<small style="color:blue">' + sites.data[i][2] + ' (' + sites.data[i][0] + ' pages)</small>'
+    html += ' &nbsp;&nbsp;<small style="color:blue">' + sites.data[i][2] + '</small>' 
+    html += ( sites.data[i][0]? ' <small>(' + sites.data[i][0] + ' pages)</small>' : '' )
     html += ' <span style="float:right" onclick="deleteSite(\'' + sites.data[i][2] + '\')">X</span>'
   }  
   document.getElementById('right').innerHTML = '<b>Click to load site setting, Doubleclick to load saved links</b><br><ul>' + html + '</ul>'  
