@@ -5,6 +5,7 @@ input, button { font-family:calibri,arial; }
 #left  { float:left; width:740px; height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px }
 #right { float:right; width:calc(100vw - 790px); height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px }
 li:hover { background:lightgreen; }
+iframe { width:99%; height:99%; margin:0px }
 </style>
 <body style="font-family:calibri; overflow:hidden">
 <div id=header style="padding:6px">
@@ -14,20 +15,20 @@ li:hover { background:lightgreen; }
       <td><input id=baseurl name=baseurl size=45 value="https://" /> 
       <td><b>for index like  
       <td><input id=idxpage name=idxpage size=45 value='' />
-      <td><input id=silent name=silent type=checkbox checked>Silent for error</input> 
       <td><button onclick="crawlStart(1)">Crawl Once</button>
-      <td><button id=btnCrawlAll onclick="crawlStart()">Crawl All</button>
-      <td><button id=btnStop onclick="counter=0" disabled>Stop</button>
+      <td><button id=btnCrawlAll onclick="crawlStart()">Crawl Max</button>
+      <td><input id=maxpage name=maxpage size=3 value=999></input>Pages
+      <td><button id=btnStop onclick="maxcount=0" disabled>Stop</button> 
     </tr>
     <tr>
       <td><b>find page like</b>  
       <td><input id=pattern name=pattern size=45 value='' />
       <td><b>for content  
       <td><input id=capture name=capture size=45 value='' />
-      <td>Max <input id=maxpage name=maxpage size=3 value=999></input>Pages
       <td><button onclick="loadSite()">Load Sites</button>
-      <td><button onclick="saveSite()">Save Sites</button> 
-      <td><button onclick="saveAllToHtml()">Save All to Html</button>  
+      <td><button onclick="saveSite()">Save Site</button> 
+      <td><button onclick="saveAllToHtml()">Save All to File</button>
+      <td><button onclick="pb.window('w_about')">About</button>   
     </tr>
   </table>
 </div>  
@@ -36,35 +37,34 @@ li:hover { background:lightgreen; }
 then use <b>RegExp</b> to filter the proper index link and page link, and input <b>css selector</b> to "select content"</p>
 <ul>
 <li>Click [Crawl Once] to crawl base url once.
-<li>Click [Crawl All] to crawl all index pages.
+<li>Click [Crawl Max] to crawl all index pages.
 <li>Click [Stop] to stop crawling process.
 <li>Double-click on the list of content page, will crawl content of this page, and show in right-panel.
+<li>Single-Click on the list of content page, will show page from local file (if saved)
 <li>May continue finetune the "content" definition, then double-click to crawl the content page.
-<li>In right-panel, click on [Save To File] will save crawl page to html file.
+<li>In right-panel, click on [Save To File] will save crawl page to local html file.
 </ul><ul> 
 <li>Click [Load Sites] to show the list of sample sites from database.
 <li>Click on a sample site to load the site setting only
 <li>Doubleclick on sample site to crawled links from database.
-<li>Click [Save Sites] will save site setting with crawled links to database (sample.mdb)
+<li>Click [Save Site] will save site setting with crawled links to database (sample.mdb)
 </ul>
-<p>If everything is tested fine, may click [Save All to Html] to crawl all pages to local html files.</p>
+<p>If everything is tested fine, may click [Save All to File] to crawl all pages to local files.</p>
 </div>
 <div id=right></div>
 </body>
 
 <script>
 //=== define variables for golbal usage
-var sql, baseUrl, pattern, idxpage, capture, silent, current=0, counter, maxLevel=1
-var listPage, listTodo, sites, siteName, folder, filename, crawlUrl, crawlHtml
-var listType = []
+var sql, baseUrl, pattern, idxpage, capture, silent, counter, maxcount
+var sites, siteName, folder, filename, crawlUrl, crawlHtml
+var listPage = [], listType = []
 
 //=== start crawling (base_url -> index pages) 
 function crawlStart(level) {
-  document.getElementById('btnStop').disabled = false
-  listPage = []
-  listType = [] 
-  counter = level||(document.getElementById('maxpage').value)
   baseUrl = document.getElementById('baseurl').value    
+  document.getElementById('btnStop').disabled = false
+  maxcount = level||(document.getElementById('maxpage').value)
   crawlPage(baseUrl) 
 }
 
@@ -72,12 +72,12 @@ function crawlStart(level) {
 function crawlPage(url) {
   pattern = document.getElementById('pattern').value
   idxpage = document.getElementById('idxpage').value
-  silent = ( document.getElementById('silent').checked? ',silent=yes' : '' )
-  pb.callback('crawlPageLinks').popup( 'mode=crawl' + silent + ', key=a, url=' + url ) 
+  pb.callback('crawlPageLinks').spider( url, 'a' ) 
 }
 
 //=== read links for index pages
 function crawlPageLinks( result, type, url ) {
+  //[debug] return document.getElementById('right').innerHTML = '<xmp style="white-space:pre-wrap;">'+result+'</xmp>' 
   var i, link
   var rs = JSON.parse( result||'{"links":[]}' )
   for (i in rs.links) {
@@ -97,20 +97,20 @@ function showPageLinks() {
   var html2 = '<b>Content Pages</b>(double-click to crawl content)<ol>'
   for (var i in listPage) {
     if (listType[i]=='index' || listType[i]=='indexed') {
-      html1 += '<li ondblclick="crawlPage(listPage[' + i + '])">'
+      html1 += '<li ondblclick="crawlPage(listPage[' + i + ']);listType[' + i + ']=\'indexed\'">'
       html1 += (listType[i]=='indexed'? '<b style="color:green">crawled: </b>' : '[to-do]: ') + listPage[i] + '\n<br>'
     } else {
-      html2 += '<li ondblclick="crawlContent(listPage[' + i + '])">' + listPage[i] 
+      html2 += '<li onclick="showLocalPage(listPage['+i+'])" ondblclick="crawlContent(listPage['+i+'])">' + listPage[i] 
     }  
   }
   document.getElementById('left').innerHTML = html1 + '</ol><hr>' + html2 + '</ol>'
   document.getElementById('right').innerHTML = ''   
 } 
 
-//=== found next page to crawl 
+//=== found next "to-do" page to crawl 
 function crawlNextPage() {
   var n = listType.indexOf('index')
-  if ( (--counter)>0 && n>=0 ) { 
+  if ( (--maxcount)>0 && n>=0 ) { 
     crawlPage( listPage[n] )
     listType[n] = 'indexed'
   }  
@@ -120,17 +120,17 @@ function crawlNextPage() {
 function crawlContent (url) {
   baseUrl = document.getElementById('baseurl').value  
   capture = document.getElementById('capture').value
-  silent = ( document.getElementById('silent').checked? ';silent=yes' : '' )
-  pb.callback('showContent').popup( 'delim=;mode=crawl' + silent + ';key=' + capture + ';url=' + (crawlUrl=url) )
+  pb.callback('showContent').spider( crawlUrl=url, capture )
 }
 
 //=== show page content
 function showContent( result, type, url ) {
   var html1 = '<button id=btnSaveFile onclick="saveContent()">Save to File</button>'
   var html2 = '\n<br><h2 style="background:teal">html source</h2>\n<xmp style="white-space:pre-wrap;">'
+  //[debug] return document.getElementById('right').innerHTML = html2 + result + '</xmp>'
   var rs = JSON.parse(result||'{}')
   crawlHtml = markup(rs.html, rs.title)  
-  document.getElementById('right').innerHTML =  html1 + crawlHtml + html2 + crawlHtml + '</xmp>'  
+  document.getElementById('right').innerHTML = html1 + crawlHtml + html2 + crawlHtml + '</xmp>'  
 }
 
 //==== save content to file (crawlUrl->crawlHtml)
@@ -153,6 +153,14 @@ function saveContentDone(result) {
     pb.dir('create',folder)
   }   
 } 
+
+//=== show page from local file
+function showLocalPage(url) {
+  baseUrl = document.getElementById('baseurl').value    
+  folder = baseUrl.replace(/http[s]*:\/\/(.*)/i,'$1').replace(/[\/|?|&]/g,'-').replace(/-$/,'')
+  var fname = url.replace(/http(.+).com\//,'').replace(/\//g,'-').replace(/-$/,'').replace(/\.(.+)$/, '' )
+  document.getElementById('right').innerHTML = '<iframe src="' + folder + '\\' + fname + '.html"></iframe>'
+}
 
 //=== load sites from DB (sample.mdb)
 function loadSite() {
@@ -179,11 +187,14 @@ function loadSiteConfig(n) {
   document.getElementById('idxpage').value = sites.data[n][3] 
   document.getElementById('pattern').value = sites.data[n][4] 
   document.getElementById('capture').value = sites.data[n][5]
+  listPage = []
+  listType = []
+  document.getElementById('left').innerHTML = ''
 }
 
 //=== load site pages from database
 function loadSitePages(n) { 
-  pb.callback('showSitePages').db.query("select url, status from pp_pages where base_url='"+sites.data[n][2]+"' order by 1")
+  pb.callback('showSitePages').db.query("select url, status from pp_pages where base_url='"+sites.data[n][2]+"' order by id")
 }
 
 //=== show site pages from database
@@ -255,41 +266,46 @@ function deleteSitePages() {
 
 //=== crawl all content page, and save to html
 function saveAllToHtml() {
+  baseUrl = document.getElementById('baseurl').value  
   folder = baseUrl.replace(/http[s]*:\/\/(.*)/i,'$1').replace(/[\/|?|&]/g,'-').replace(/-$/,'')
-  capture = document.getElementById('capture').value
-  silent = ( document.getElementById('silent').checked? ';silent=yes' : '' )
   if (!listPage) return alert('Please click [crawl once] or [crawl all] to find content pages first');
-  if (!confirm('Crawl all found pages, and save all content to html files under folder ' + folder)) return '';
+  if (!confirm('Crawl all found pages, and save all content to local files under folder ' + folder)) return '';
   pb.dir('create',folder)
-  current = -1
-  maxLevel = 999
+  capture = document.getElementById('capture').value
+  maxcount = document.getElementById('maxpage').value
   document.getElementById('btnStop').disabled = false
-  document.getElementById('right').innerHTML = '<b>Start crawling pages..</b><hr>\n'
+  document.getElementById('right').innerHTML = '<b>Start crawling pages..</b><hr>'
+  counter = 0
   setTimeout("saveNextToHtml()", 800 );
 }
 
 function saveNextToHtml() {
-  current++
-  if ( current<maxLevel && current < listPage.length ) {
-     filename = listPage[current].replace(/http(.+).com\//,'').replace(/\//g,'-').replace(/-$/,'').replace(/\.(.+)$/, '' )
+  var n = listType.indexOf('page')
+  if ( (maxcount--)>0 && n>=0 ) { 
+     crawlUrl = listPage[n]
+     listType[n] = 'crawled'
+     filename = crawlUrl.replace(/http(.+).com\//,'').replace(/\//g,'-').replace(/-$/,'').replace(/\.(.+)$/, '' )
      pb.callback('saveToHtmlCheck').file.exists(folder+'\\'+filename+'.html')   
   } else {
+    document.getElementById('right').innerHTML += '<br><b>All pages crawled!'
     document.getElementById('btnStop').disabled = true
   } 
 }
 
 function saveToHtmlCheck(result) {
   if (result=='true') {
-     document.getElementById('right').innerHTML += '<li>'+current+': file found! skip '+ listPage[current]
+     document.getElementById('right').innerHTML += '<br>* ' + (++counter) + ': file found! skip '+ crawlUrl
      saveNextToHtml() 
   } else {
-     document.getElementById('right').innerHTML += '<li>'+current+': crawling '+ (crawlUrl=listPage[current])
-     pb.callback('saveToHtmlWrite').popup( 'delim=;mode=crawl' + silent + ';key=' + capture + ';url=' + crawlUrl )
+     document.getElementById('right').innerHTML += '<br>* ' + (++counter) + ': crawling ' + crawlUrl + '...' 
+     pb.callback('saveToHtmlWrite').spider( crawlUrl, capture )
   }
+  document.getElementById('right').scrollTop=document.getElementById('right').scrollHeight
 }
 
 function saveToHtmlWrite( result, type, url ) {
-  crawlHtml = markup( JSON.parse( result||'{}' ).html )
+  var rs = JSON.parse( result||'{}' )
+  crawlHtml = markup( rs.html, rs.title )
   pb.file.write( folder + '\\' + filename + '.html', '@crawlHtml' )
   setTimeout("saveNextToHtml()", 1000 ); 
 }
@@ -297,7 +313,8 @@ function saveToHtmlWrite( result, type, url ) {
 // markup for crawled html. (remove script, add style sheet)
 function markup( html, title ) {
   var div = '<link rel="stylesheet" href="../pp-web-crawler.css">\n'
-  div += '<title>' + title + '</title>\n<url>' + crawlUrl + '</url>\n'
+  div += '<title>' + title + '</title>\n<url><a target=_NEW href="' + crawlUrl + '"> ' + crawlUrl + ' </a></url>\n'
   return div + '<body>\n' + html.replace( /<script(.|\n)*<\/script>/ig, '' ) + '\n</body>' 
 }
+ 
 </script>
