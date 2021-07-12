@@ -198,12 +198,12 @@ pb.crawlData = function ( key ) {
 //====== function for web crawler (poup/mode=crawl), key:=body|css-selector 
 pb.crawl = function ( key ) {
   var i, text='', html='', links=[]
-  var divs = (key.toLowerCase()=='a'? document.getElementsByTagName('a') : document.querySelectorAll(key||body))
+  var divs = (key=='a'? document.getElementsByTagName('a') : document.querySelectorAll(key||'body'))
         
   for (i=0; i<divs.length; i++) { 
     text += divs[i].innerText + '\n'
     html += divs[i].outerHTML + '\n'
-    if (divs[i].nodeName=='A') links.push({ url:decodeURI(divs[i].href), text:divs[i].innerText, id:divs[i].id });     
+    if (typeof divs[i].href=="string") links.push({ url:decodeURI(divs[i].href), text:divs[i].innerText });     
   }
   return JSON.stringify( { url:location.href, title:document.title, text:text, html:html, links:links } )
 }

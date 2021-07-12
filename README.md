@@ -15,9 +15,9 @@ Just simply define below
 
 Program will
  
-* crawl all index page.
+* crawl all category page.
 * find out all url of content pages. 
-* crawl content fro one page, or all pages. 
+* crawl content for one page, or all pages. 
 * save setting and links ato database (support multiple sites)
 * save content pages to local files.
 * off-line reading from local files.
@@ -35,15 +35,16 @@ Program will
 
 * Input the base url first.
 * Click [Crawl Once] to crawl the base page 
-* find out the pattent of index page (regexp)
+* find out the pattent of category page (regexp)
 * find out the pattent of content page (regexp)
 * open Chrome and goto content page, find out the css selector for crawling content
 
 #### Start carwling
 
 * Click [Crawl Once] to crawl base url once.
-* Click [Crawl Max] to crawl all index pages (depends on max-page setting).
+* Click [Crawl Max] to crawl category pages recursively. (depends on max-page setting).
 * Click [Stop] to stop crawling process.
+* Double-click on the list of category page, will crawl the page for links of content page.
 * Double-click on the list of content page, will crawl content of this page, and show in right-panel.
 * Single-Click on the list of content page, will show page from local file (if saved) 
 * May continue finetune the "content" definition, then double-click to crawl the content page.
@@ -60,9 +61,11 @@ Program will
 If everything is tested fine, may click [Save All to File] to crawl all pages to html files.
 
 
-## Source Code
+## Technical Info.
 
-It is single html/js program ([pp-web-crawler.html](source/pp-web-crawler.html)) about 300 lines. 
+* Source Code: it is a single html/js program ([pp-web-crawler.html](source/pp-web-crawler.html)) about 300 lines.
+* May edit style sheet ``pp-web-crawler.css`` to markup scrawled content in your preference.
+* ``sample.mdb`` is MS Access DB to save site setting and links.
 
 ## Modification History
 
