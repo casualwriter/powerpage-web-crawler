@@ -17,13 +17,17 @@ pb.error = function(code,msg) { pb.microhelp( '[error='+ code +'] ' + msg ) }
 
 //=== router function. call from Powerbuilder, divert to callback function
 pb.router = function ( name, result, type, url ) {
-  if (typeof window[name] === "function") {
-      window[name]( result, type, url );
-  } else if (name) {
-      alert( 'callback function ' + name + '() not found!\n\n type:' + type + '\n cmd: ' + url 
-             + '\n function: '+name + '\n result: \n\n' + result )
-  } else if (typeof onCallback === "function") {
-      onCallback( result, type, url );
+  try {
+    if (typeof window[name] === "function") {
+        window[name]( result, type, url );
+    } else if (name) {
+        alert( 'callback function ' + name + '() not found!\n\n type:' + type + '\n cmd: ' + url 
+               + '\n function: '+name + '\n result: \n\n' + result )
+    } else if (typeof onCallback === "function") {
+        onCallback( result, type, url );
+    }
+  } catch (e) {
+    alert( 'Error in callback! \n\n Name: ' + name + '\nMessage:' + e.message )
   }  
 }
 
@@ -197,14 +201,17 @@ pb.crawlData = function ( key ) {
 
 //====== function for web crawler (poup/mode=crawl), key:=body|css-selector 
 pb.crawl = function ( key ) {
-  var i, text='', html='', links=[]
-  var divs = (key=='a'? document.getElementsByTagName('a') : document.querySelectorAll(key||'body'))
-        
-  for (i=0; i<divs.length; i++) { 
-    text += divs[i].innerText + '\n'
-    html += divs[i].outerHTML + '\n'
-    if (typeof divs[i].href=="string") links.push({ url:decodeURI(divs[i].href), text:divs[i].innerText });     
-  }
+  var i, text='', html='', links=[], divs=[], url  
+  try {
+    divs = (key=='a'? document.getElementsByTagName('a') : document.querySelectorAll(key||'body'))
+    for (i=0; i<divs.length; i++) { 
+      text += divs[i].innerText + '\n'
+      html += divs[i].outerHTML + '\n'
+      if (typeof divs[i].href=="string") links.push( { url: decodeURI(divs[i].href), text:divs[i].innerText } );
+    }
+  } catch (e) {
+    html = text = 'Error: ' + e.message 
+  }   
   return JSON.stringify( { url:location.href, title:document.title, text:text, html:html, links:links } )
 }
 

@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <title>Powerpage Web Crawler</title>
 <style>
-input, button { font-family:calibri,arial; }
-#left  { float:left; width:740px; height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px }
-#right { float:right; width:calc(100vw - 790px); height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px }
+input, button, div, h2, h3, span { font-family:calibri,arial; }
+#left  { float:left; width:740px; height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px; -ms-user-select:element; }
+#right { float:right; width:calc(100vw - 790px); height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px; }
 li:hover { background:lightgreen; }
 iframe { width:99%; height:99%; margin:0px; border:0 }
 </style>
 
-<body style="font-family:calibri; overflow:hidden">
+<body style="font-family:calibri,arial; overflow:hidden;">
 
-<div id=header style="padding:6px;">
+<div id=header style="padding:6px; border:1px solid grey; margin-bottom:2px">
   <table>
     <tr>
       <td><b>base link</b> 
       <td><input id=baseurl name=baseurl size=45 value="https://" /> 
       <td><b>for category like  
       <td><input id=idxpage name=idxpage size=45 value='' />
-      <td><button onclick="crawlStart(1)">Crawl Once</button>
+      <td><button onclick="listPage=[]; listType=[]; crawlStart(1)">Crawl Once</button>
       <td><button id=btnCrawlAll onclick="crawlStart()">Crawl Max</button>
       <td><input id=maxpage name=maxpage size=3 value=999></input>Pages
       <td><button id=btnStop onclick="maxcount=0" disabled>Stop</button> 
@@ -30,7 +30,7 @@ iframe { width:99%; height:99%; margin:0px; border:0 }
       <td><button onclick="loadSite()">Load Sites</button>
       <td><button onclick="saveSite()">Save Site</button> 
       <td><button onclick="saveAllToHtml()">Save All to File</button>
-      <td><button onclick="pb.window('w_about')">About</button>   
+      <td><button onclick="pb.window('w_about')">About</button>
     </tr>
   </table>
 </div>  
@@ -64,7 +64,7 @@ then use <b>RegExp</b> to filter proper category page and content page, and inpu
 <script>
 //=== define variables for golbal usage
 var sql, baseUrl, pattern, idxpage, capture, silent, counter, maxcount, row
-var sites, siteName, folder, filename, crawlUrl, crawlHtml, localname
+var sites, siteName, folder, crawlUrl, crawlHtml, localname, buffer
 var listPage = [], listType = []
 
 //=== start crawling (base_url -> index pages) 
@@ -84,7 +84,7 @@ function crawlPage(url) {
 
 //=== read links for index pages
 function crawlPageLinks( result, type, url ) {
-  //return document.getElementById('right').innerHTML = '<xmp style="white-space:pre-wrap;">'+result+'</xmp>' 
+  //return pb('right').innerHTML = '<xmp style="white-space:pre-wrap;">'+result+'</xmp>' 
   var i, link
   var rs = JSON.parse( result||'{"links":[]}' )
   
@@ -139,7 +139,7 @@ function showContent( result, type, url ) {
   var html2 = '\n<br><h2 style="background:teal">html source</h2>\n<xmp style="white-space:pre-wrap;">'
   try {
     var rs = JSON.parse( result.replace(/\\'/g,"\\\\'") )   
-    crawlHtml = markup(rs.html, rs.title)
+    crawlHtml = markup(rs.html, rs.title, rs.url)
     document.getElementById('right').innerHTML = html1 + crawlHtml + html2 + crawlHtml + '</xmp>'  
   } catch (e) {  
     document.getElementById('right').innerHTML = html1 + JSON.stringify(e) + html2 + (crawlHtml=result) + '</xmp>'
@@ -148,19 +148,17 @@ function showContent( result, type, url ) {
 
 //==== save content to file (crawlUrl->crawlHtml)
 function saveContent() {
-  folder = baseUrl.replace(/http[s]*:\/\/(.*)/i,'$1').replace(/[\/|?|&]/g,'-').replace(/-$/,'')
-  filename = crawlUrl.replace(/http(.+).[com|net]\//,'').replace(/\//g,'-').replace(/-$/,'').replace(/\.(.+)$/, '' )
-  pb.callback('saveContentCheck').file.exists( folder + '\\' + filename + '.html' )
+  pb.callback('saveContentCheck').file.exists( getFolderName() + '\\' + getFileName() )
 }
 
 function saveContentCheck( result ) {
   if (result=='false'||confirm('File exists. Overwrite?'))
-     pb.callback('saveContentDone').file.write( folder + '\\' + filename + '.html', '@crawlHtml' )
+     pb.callback('saveContentDone').file.write( folder + '\\' + getFileName(), '@crawlHtml' )
 }
 
 function saveContentDone(result) {
   if (JSON.parse(result).status>0) {
-    document.getElementById('btnSaveFile').innerText='Saved to '+filename+'.html'
+    document.getElementById('btnSaveFile').innerText='Saved to ' + getFileName()
   } else {
     document.getElementById('btnSaveFile').innerText='Save failed. Please try again.'
     pb.dir('create',folder)
@@ -169,16 +167,13 @@ function saveContentDone(result) {
 
 //=== show page from local file
 function showLocalPage(n) {
-  baseUrl = document.getElementById('baseurl').value    
-  folder = baseUrl.replace(/http[s]*:\/\/(.*)/i,'$1').replace(/[\/|?|&]/g,'-').replace(/-$/,'')
-  localname = listPage[row=n]
-  localname = localname.replace(/http(.+).[com|net]\//,'').replace(/\//g,'-').replace(/-$/,'').replace(/\.(.+)$/, '' )
-  pb.callback('checkLocalPage').file.exists( folder + '\\' + localname + '.html' ) 
+  localFile = getFileName( listPage[row=n] )
+  pb.callback('checkLocalPage').file.exists( getFolderName() + '\\' + localFile ) 
 }
 
 function checkLocalPage(result) {
   if (result=='true') {
-    document.getElementById('right').innerHTML = '<iframe src="' + folder + '\\' + localname + '.html"></iframe>'
+    document.getElementById('right').innerHTML = '<iframe src="' + folder + '\\' + localFile + '"></iframe>'
   } else {
     document.getElementById('right').innerHTML = '<p>local file not found!</p><button onclick="crawlContent('+row+')">Crawl Page</button>'
   }    
@@ -289,11 +284,9 @@ function deleteSitePages() {
 
 //=== crawl all content page, and save to html
 function saveAllToHtml() {
-  baseUrl = document.getElementById('baseurl').value  
-  folder = baseUrl.replace(/http[s]*:\/\/(.*)/i,'$1').replace(/[\/|?|&]/g,'-').replace(/-$/,'')
   if (!listPage) return alert('Please click [crawl once] or [crawl all] to find content pages first');
   if (!confirm('Crawl all found pages, and save all content to local files under folder ' + folder)) return '';
-  pb.dir('create',folder)
+  pb.dir('create', getFolderName() )
   capture = document.getElementById('capture').value
   maxcount = document.getElementById('maxpage').value
   document.getElementById('btnStop').disabled = false
@@ -307,8 +300,7 @@ function saveNextToHtml() {
   if ( (maxcount--)>0 && n>=0 ) { 
      crawlUrl = listPage[n]
      listType[n] = 'crawled'
-     filename = crawlUrl.replace(/http(.+).[com|net]\//,'').replace(/\//g,'-').replace(/-$/,'').replace(/\.(.+)$/, '' )
-     pb.callback('saveToHtmlCheck').file.exists(folder+'\\'+filename+'.html')   
+     pb.callback('saveToHtmlCheck').file.exists( folder+'\\'+getFileName() )   
   } else {
     document.getElementById('right').innerHTML += '<br><b>All pages crawled!'
     document.getElementById('btnStop').disabled = true
@@ -328,15 +320,29 @@ function saveToHtmlCheck(result) {
 
 function saveToHtmlWrite( result, type, url ) {
   var rs = JSON.parse( result||'{}' )
-  crawlHtml = markup( rs.html, rs.title )
-  pb.file.write( folder + '\\' + filename + '.html', '@crawlHtml' )
-  setTimeout("saveNextToHtml()", 1000 ); 
+  crawlHtml = markup( rs.html, rs.title, rs.url )
+  pb.file.write( folder+'\\'+getFileName(), '@crawlHtml' )
+  setTimeout("saveNextToHtml()", 2000 ); 
 }
 
 // markup for crawled html. (remove script, add style sheet)
-function markup( html, title ) {
+function markup( html, title, url ) {
   var div = '<link rel="stylesheet" href="pp-web-crawler.css">\n'
-  div += '<title>' + title + '</title>\n<url><a target=_NEW href="' + crawlUrl + '"> ' + crawlUrl + ' </a></url>\n'
+  div += '<title>' + title + '</title>\n<url><a target=_NEW href="' + crawlUrl + '"> ' + url + ' </a></url>\n'
+  html = html.replace( /src="\/\//g, 'src="https:\/\/' )
   return div + '<body>\n' + html.replace( /<script(.|\n)*<\/script>/ig, '' ) + '\n</body>' 
 }
+
+// get folder name
+function getFolderName() {
+  baseUrl = document.getElementById('baseurl').value  
+  return folder = baseUrl.replace(/http[s]*:\/\/(.*)/i,'$1').replace(/[\/|?|&|=]/g,'-').replace(/-$/,'')
+}  
+
+// get file name
+function getFileName(url) {
+   var fname = (url||crawlUrl).replace(/http(.+).[com|net|hk]\//,'').replace(/[\/|?|&|=]/g,'-').replace(/-$/,'')
+   return fname.replace(/\.(.){1,4}$/, '' ) + '.html' 
+}
+
 </script>

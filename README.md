@@ -1,6 +1,6 @@
 # Powerpage Web Crawler
 
-``Powerpage Web Crawler`` is portable lightweight web crawler using [**Powerpage**](https://github.com/casualwriter/powerpage). 
+``Powerpage Web Crawler`` is a portable lightweight web crawler using [**Powerpage**](https://github.com/casualwriter/powerpage). 
  
 It is a simple html/js application demonstrating developing application using [Powerpage](https://github.com/casualwriter/powerpage). 
 
@@ -64,7 +64,7 @@ If everything is tested fine, may click [Save All to File] to crawl all pages to
 ## Technical Info.
 
 * Source Code: it is a single html/js program ([pp-web-crawler.html](source/pp-web-crawler.html)) about 300 lines.
-* May edit style sheet ``pp-web-crawler.css`` to markup scrawled content in your preference.
+* May edit style sheet [pp-web-crawler.css](source/pp-web-crawler.css) to markup scrawled content in your preference.
 * ``sample.mdb`` is MS Access DB to save site setting and links.
 
 ## Modification History
@@ -73,6 +73,7 @@ If everything is tested fine, may click [Save All to File] to crawl all pages to
 * 2021/07/02, v0.35, add sample sites.
 * 2021/07/09, v0.40, save links to db, and misc enhancement
 * 2021/07/11, v0.50, work with database, work with local files, and misc enhancement
+* 2021/07/15, v0.55, bug fixed, and misc enhancement.
 
 ## License
 
