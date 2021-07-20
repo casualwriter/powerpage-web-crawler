@@ -9,7 +9,7 @@
 // 20210710. ck.  simple polyfill for crawling IE7 pages
 //========================================================================
 // pb main function, pb('varname') = js.varname, pb('#div') = getElementById
-var pb = function (n) { return n[0]=='#'? document.getElementById(n.substr(2)) : window[n]; }
+var pb = function (n) { return n[0]=='#'? document.getElementById(n.substr(1)) : window[n]; }
 
 //=== show message for microhelp, internal error 
 pb.microhelp = function (msg) { document.title='pb://microhelp/'+ msg } 

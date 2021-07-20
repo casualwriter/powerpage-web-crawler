@@ -74,6 +74,7 @@ If everything is tested fine, may click [Save All to File] to crawl all pages to
 * 2021/07/09, v0.40, save links to db, and misc enhancement
 * 2021/07/11, v0.50, work with database, work with local files, and misc enhancement
 * 2021/07/15, v0.55, bug fixed, and misc enhancement.
+* 2021/07/19, v0.56, minor fixed.
 
 ## License
 

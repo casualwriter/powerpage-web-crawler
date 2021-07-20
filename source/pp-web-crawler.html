@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <title>Powerpage Web Crawler</title>
 <style>
-input, button, div, h2, h3, span { font-family:calibri,arial; }
+body, input, button, div{ font-family:calibri,arial; }
 #left  { float:left; width:740px; height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px; -ms-user-select:element; }
 #right { float:right; width:calc(100vw - 790px); height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px; }
 li:hover { background:lightgreen; }
-iframe { width:99%; height:99%; margin:0px; border:0 }
+iframe { width:99%; height:99%; margin:0px; border:0; font-family:calibri,arial; }
 </style>
 
-<body style="font-family:calibri,arial; overflow:hidden;">
+<body style="overflow:hidden;">
 
 <div id=header style="padding:6px; border:1px solid grey; margin-bottom:2px">
   <table>
@@ -341,8 +341,7 @@ function getFolderName() {
 
 // get file name
 function getFileName(url) {
-   var fname = (url||crawlUrl).replace(/http(.+).[com|net|hk]\//,'').replace(/[\/|?|&|=]/g,'-').replace(/-$/,'')
+   var fname = (url||crawlUrl).replace(/http(.+).(com|net|org|hk)\//,'').replace(/[\/|?|&|=]/g,'-').replace(/-$/,'')
    return fname.replace(/\.(.){1,4}$/, '' ) + '.html' 
 }
-
 </script>
