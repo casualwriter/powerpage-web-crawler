@@ -1,47 +1,68 @@
 <!DOCTYPE html>
 <html>
-<title>Power Page</title>
+<title>PowerPage</title>
 <style>
-  body { margin:12px; font-family:arial; font-size:14px; }
-  button { font-family:arial; font-size:13px }
-  li { padding-top: 6px; }
-  td.remark {border:1px solid grey; width:350px; padding:4px; }
-  td.sample {border:1px solid grey; width:250px; padding:4px; }
-  td.syntax {border:1px solid grey; width:30%; padding:4px; }
-  th {border:1px solid grey; background:lightgrey; padding:4px; }
-  a { text-decoration: none; }
-  a:hover { background-color: lightgreen; }
-  h3 {color:darkblue}
+html { box-sizing:border-box } *,*:before, *:after {box-sizing:inherit}
+body { font-family:Verdana,sans-serif; font-size:14px; line-height:1.5; margin:0; }
+h1,h2,h3,h4,h5,h6 {font-family:"Segoe UI",Arial,sans-serif;font-weight:600;margin:8px 0}
+h2 { font-size:30px; padding:6px; color:#695874; background:#f0f0f0;  }
+h3 { font-size:24px; padding:6px; color:darkblue; }
+h4 { font-size:20px; padding:6px; }
+div, p  { padding:6px 12px } 
+code { font-family:monospace,calibri; background-color:#f6f6f6; color:darkblue; border-radius:2px; padding:2px;  }
+pre  { font-family:monospace,calibri; margin-left:12px; border:1px solid #eee; background:#f6f6f6; padding:8px; }  
+a 	 { background:transparent; text-decoration:none; } a:active, a:hover { outline-width:0; background:#CED; }
+#header   { background-color:#695874; color:white; width:100%; height:50px; padding:0px }
+#title    { float:left; font-size:18px; font-weight:700; padding:8px }
+#subtitle { background:#eee; width:98%; height:48px; font-size:18px; font-weight:700; margin:8px }
+#menu button, #menu a { font-family:Verdana,Arial; border:none; padding:4px 8px; color:inherit; background:#695874; }
+#menu button:hover, #menu a:hover { color:#000; background-color:#ccc }
+#menu button:disabled {cursor:not-allowed; opacity:0.5}: disabled *{pointer-events:none}
+table { margin:8px; border-collapse: collapse; }
+th { border:1px solid grey; background:lightgrey; padding:4px; }
+td { border:1px solid grey; font-family:arial; padding:4px; }
+td.remark { width:350px; }
+td.sample { width:250px; }
+td.syntax { width:30%; }
 </style>
+
 <body>
 
-<button onclick="location.href='pp-markdown.html'">Markdown Editor</button> 
-<button onclick="location.href='pp-web-crawler.html'">Web Crawler</button> 
-<button onclick="location.href='pp-db-browser.html'" disabled>DB Browser</button> 
-<button onclick="location.href='pp-document.html'" disabled>Documentation</button> 
-<button onclick="pb.run('notepad.exe powerpage.html')" accesskey=e style="float:right"><u>E</u>dit This Page</button> 
-<button onclick="pb.window('w_about')" accesskey=a style="float:right"><u>A</u>bout</button> 
+<div id=header>
+  <span id=title>PowerPage</span>
+  <span id=menu style="float:right; padding:12px">
+		<a href='pp-md-document.html'>Documentation</a> 
+		<a href='pp-md-editor.html'>Markdown Editor</a> 
+		<a href='pp-web-crawler.html'>Web Crawler</a> 
+		<button disabled>DB Browser</button>
+		<a href="http://html5test.com/">HTML5-Test</a>
+		<a href="javascript:pb.window('w_about')">About</a> 
+  </span>
+</div>
 
-<p id=brief><b>Powerpage is a lightweight web browser with DB capability and windows accessibility, for rapid application development by html/css/js. </b>
-<p>Powerpage will connect to database, and load startup page by the setting of powerpage.ini, and open OLE web-browser with new protocol <mark>pb:// or ps://</mark> supported below features</b>
-<ul>
-<li>(Run)  Call External Program 
-<li>(File) Access file system
-<li>(DB)   Access Database
-<li>(PB)   Call Powerbuilder Windows/Functions                     
-<li>(Print) Printing, PDF rerport generation
-<li>(Misc)  Variables, session information
-</ul>
+<div id=content>
+<p><b>Powerpage</b> is is a lightweight web browser with DB capability and windows accessibility, 
+for rapid development of javascript/html application.
 </p>
+<p>Powerpage will connect to database, load startup page using Microsoft web-browser control (<b>equivalent to IE11</b>), 
+and communicate with html/js page by <mark>pb:// or ps://</mark> protocol to provide below features
+</p> 
+<ul >
+	<li>(Run)  Call External Program 
+	<li>(File) Access file system
+	<li>(DB)   Access Database
+	<li>(PB)   Call Powerbuilder Windows/Functions                     
+	<li>(Print) Printing, PDF rerport generation
+	<li>(Misc)  Variables, session information
+</ul>
+</div>
 
-<hr>
+<div id=subtitle>Quick Reference of API</div>
 
 <div id=global>
-<h2>Quick Reference of API (pb-protocol)</h2><hr>
 <h3>Global Features (Callback, Prompt, @JsVar, Secured protocol)</h3> 
-"Callback, Prompt/Confirm, @JsVar, Secured protocol" are supported in all commands.
-
-<table style="margin:10px;border-collapse: collapse;">
+<p>"Callback, Prompt/Confirm, @JsVar, Secured protocol" are supported in all commands.</p>
+<table>
   <tr><th>Description<th>Syntax<th>url protocol<th>javascript</tr>
   <tr>
      <td class=remark>Prompt for confirmation, then run command
@@ -72,8 +93,8 @@
 
 <div>
 <h3>Run / Shell</h3>
-Run will call Wscript.run() and Shell command will be diverted to shell32.dll -> ShellExecuteW()
-<table style="margin:10px;border-collapse: collapse;">
+<p>Run will call Wscript.run() and Shell command will be diverted to shell32.dll -> ShellExecuteW()</p>
+<table>
   <tr><th>Description<th>Syntax<th>url protocol<th>javascript</tr>
   <tr>
      <td class=remark>Run a program, e.g. mspaint.exe, resmon.exe
@@ -122,8 +143,8 @@ Run will call Wscript.run() and Shell command will be diverted to shell32.dll ->
 
 <div>
 <h3>File Accessibility</h3>
-calling powerbuilder file/diretory funcitons to provide file support.
-<table style="margin:10px;border-collapse: collapse;">
+<p>calling powerbuilder file/diretory funcitons to provide file support.</p>
+<table>
   <tr><th>Description<th>Syntax<th>url protocol<th>javascript</tr>
   <tr>
      <td class=remark>Copy powerpage.ppg to newfile.html
@@ -208,8 +229,8 @@ calling powerbuilder file/diretory funcitons to provide file support.
 
 <div>
 <h3>Database Accessibility</h3>
-Query from database, execute sql or stored procedure.
-<table style="margin:10px;border-collapse: collapse;">
+<p>Query from database, execute sql or stored procedure.</p>
+<table>
   <tr><th>Description<th>Syntax<th>url protocol<th>javascript</tr>
   <tr>
      <td class=remark>run ah-hoc SQL, return json
@@ -265,8 +286,8 @@ Query from database, execute sql or stored procedure.
 
 <div>
 <h3>Work with Powerbuilder</h3>
-call powerbuilder customized window/function, which stored in extert pbl file.
-<table style="margin:10px;border-collapse: collapse;">
+<p>call powerbuilder customized window/function, which stored in extert pbl file.</p>
+<table>
   <tr><th>Description<th>Syntax<th>url protocol<th>javascript</tr>
   <tr>
      <td class=remark>Open PB window object
@@ -291,10 +312,10 @@ call powerbuilder customized window/function, which stored in extert pbl file.
 
 <div>
 <h3>Session / Global Variables</h3>
-Session is important for applicaiton development. After page loaded, 
+<p>Session is important for applicaiton development. After page loaded, 
 ``pb.session``` serves as session object sharing information between different pages.
-
-<table style="margin:10px;border-collapse: collapse;">spid
+</p>
+<table>
   <tr>
      <td class=remark>initialized by powerpage.ini
      <td class=sample>[session]<br>var1 = name: PowerPage
@@ -319,7 +340,7 @@ Session is important for applicaiton development. After page loaded,
 
 <div>
 <h3>Print and PDF Report Generation</h3>
-<table style="margin:10px;border-collapse: collapse;">
+<table>
   <tr>
      <td class=remark>Print, Preview, PageSetup 
      <td class=sample><mark>pb://print</mark>/[now|preview|setup]
@@ -343,7 +364,7 @@ Session is important for applicaiton development. After page loaded,
 
 <div>
 <h3>Url Navigation / Misc</h3>
-<table style="margin:10px;border-collapse: collapse;">
+<table>
   <tr>
      <td class=remark>open link in popup dialog (share session info)
      <td class=sample><mark>pb://popup</mark>/width=?,height=?,url=?
