@@ -4,25 +4,29 @@
  
 It is a simple html/js application demonstrating developing application using [Powerpage](https://github.com/casualwriter/powerpage). 
 
-Powerpage Web Crawler (v0.50) is powerful and easy-to-use web scrawler suitable for blog site crawling and offline-reading. 
+`Powerpage Web Crawler` is powerful and easy-to-use web scrawler suitable for blog site crawling and offline-reading.
 
-Just simply define below
+Just simply define below, for example
 
-* base-url := the home page of favor blog site
-* index-pattern := RegExp of the url pattern of category page
-* page-pattern := RegExp of the url pattern of category page
-* content-css := css selector for blog content 
+* `base-url` := `https://dev.to/casualwriter`  // the home page of favor blog site
+* `index-pattern` := `none`  // RegExp of the url pattern of category page
+* `page-pattern` := `/casualwriter/[a-z]` // RegExp of the url pattern of content page
+* `content-css` := `#main-title h1, #article-body`  //css selector for blog content 
 
 Program will
  
-* crawl all category page.
-* find out all url of content pages. 
+* crawl all category pages.
+* find out all urls of content page. 
 * crawl content for one page, or all pages. 
-* save setting and links ato database (support multiple sites)
+* save setting and links to database (support multiple sites)
 * save content pages to local files.
 * allow off-line reading from local files.
+
+
+### Screen Preview
  
 ![](pp-web-crawler.gif)
+
 
 ### Installation & Run
 
