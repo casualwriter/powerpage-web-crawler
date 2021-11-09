@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <title>Powerpage Web Crawler</title>
 <style>
-body, input, button, div{ font-family:calibri,arial; }
-#left  { float:left; width:740px; height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px; -ms-user-select:element; }
-#right { float:right; width:calc(100vw - 790px); height:calc(100vh - 100px); border:1px solid grey; overflow:auto; padding:6px; }
-li:hover { background:lightgreen; }
+body, input, button, div { font-family:calibri,arial;}
+#left  { float:left; width:720px; height:calc(100vh - 94px); border:1px solid grey; overflow:auto; padding:6px; -ms-user-select:element; }
+#right { float:right; width:calc(100vw - 760px); height:calc(100vh - 94px); border:1px solid grey; overflow:auto; padding:6px; }
+li:hover { background: lightgreen; }
 iframe { width:99%; height:99%; margin:0px; border:0; font-family:calibri,arial; }
+button { border:1px solid grey; min-width:50px; } button:hover { background:lightgreen; }
 </style>
 
-<body style="overflow:hidden;">
+<body style="overflow:hidden; margin:4px">
 
-<div id=header style="padding:6px; border:1px solid grey; margin-bottom:2px">
+<div id=header style="padding:6px; border:1px solid grey; margin-bottom:2px; background:#eee">
   <table>
     <tr>
-      <td><b>base link</b> 
+      <td><b>Base link</b> 
       <td><input id=baseurl name=baseurl size=45 value="https://" /> 
       <td><b>for category like  
       <td><input id=idxpage name=idxpage size=45 value='' />
@@ -62,7 +63,7 @@ then use <b>RegExp</b> to filter proper category page and content page, and inpu
 </body>
 
 <script>
-//=== define variables for golbal usage
+//=== define variables for global usage
 var sql, baseUrl, pattern, idxpage, capture, silent, counter, maxcount, row
 var sites, siteName, folder, crawlUrl, crawlHtml, localname, buffer
 var listPage = [], listType = []
@@ -110,7 +111,8 @@ function showPageLinks() {
       html1 += '<li ondblclick="crawlPage(' + i + ');listType[' + i + ']=\'indexed\'">'
       html1 += (listType[i]=='indexed'? '<b style="color:green">crawled: </b>' : '[to-do]: ') + listPage[i] + '\n<br>'
     } else {
-      html2 += '<li onclick="showLocalPage(' + i + ')" ondblclick="crawlContent(' + i + ')">' + listPage[i] 
+      html2 += '<li onclick="showLocalPage(' + i + ')" ondblclick="crawlContent(' + i + ')">'    
+      html2 += listPage[i] + (listType[i]=='crawled'? ' <small style="color:green">[crawled]</small>' : '')
     }  
   }
   
@@ -195,7 +197,7 @@ function showSite ( result, type, url ) {
     html += ( sites.data[i][0]? ' <small>(' + sites.data[i][0] + ' pages)</small>' : '' )
     html += ' <span style="float:right" onclick="deleteSite(\'' + sites.data[i][2] + '\')">X</span>'
   }  
-  document.getElementById('right').innerHTML = '<b>Click to load setting, Doubleclick to load saved links</b><br><ul>' + html + '</ul>'  
+  document.getElementById('right').innerHTML = '<b>Singleclick to load setting, Doubleclick to load saved links</b><br><ul>' + html + '</ul>'  
 }
 
 //=== load site setting and crawled links
@@ -336,12 +338,12 @@ function markup( html, title, url ) {
 // get folder name
 function getFolderName() {
   baseUrl = document.getElementById('baseurl').value  
-  return folder = baseUrl.replace(/http[s]*:\/\/(.*)/i,'$1').replace(/[\/|?|&|=]/g,'-').replace(/-$/,'')
+  return folder = baseUrl.replace(/http[s]:\/\/(.+?)/i,'$1').replace(/[\/|?|&|=]/g,'-').replace(/-$/,'')
 }  
 
 // get file name
 function getFileName(url) {
-   var fname = (url||crawlUrl).replace(/http(.+).(com|net|org|hk)\//,'').replace(/[\/|?|&|=]/g,'-').replace(/-$/,'')
-   return fname.replace(/\.(.){1,4}$/, '' ) + '.html' 
+   var fname = (url||crawlUrl).replace(/http[s]\:\/\/(.+?)\//i,'').replace(/[\/?&=]/g,'-')
+   return fname.replace(/-$/,'').replace(/\.(.){1,4}$/, '' ) + '.html' 
 }
 </script>
